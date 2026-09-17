@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1.0"
+>
+
+<title>REAL FOREX NEWS ALERT</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:#080b10;
+  color:#f1f5f9;
+  font-family:Arial,sans-serif;
+}
+
+.header{
+  padding:18px 15px;
+  background:#10151d;
+  border-bottom:1px solid #252d38;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+.title{
+  font-size:21px;
+  font-weight:bold;
+}
+
+.sub{
+  color:#94a3b8;
+  font-size:12px;
+  margin-top:5px;
+}
+
+.status{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+.badge{
+  padding:6px 9px;
+  border-radius:20px;
+  background:#18202b;
+  font-size:11px;
+}
+
+.green{
+  color:#4ade80;
+}
+
+.red{
+  color:#fb7185;
+}
+
+.yellow{
+  color:#facc15;
+}
+
+.container{
+  padding:12px;
+  max-width:900px;
+  margin:auto;
+}
+
+.card{
+  background:#10151d;
+  border:1px solid #222b36;
+  border-radius:13px;
+  margin-bottom:11px;
+  padding:13px;
+}
+
+.time{
+  color:#94a3b8;
+  font-size:12px;
+}
+
+.news-title{
+  font-size:16px;
+  font-weight:bold;
+  margin:8px 0;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+}
+
+.box{
+  background:#171e28;
+  padding:8px;
+  border-radius:8px;
+  text-align:center;
+}
+
+.label{
+  color:#94a3b8;
+  font-size:10px;
+}
+
+.value{
+  margin-top:4px;
+  font-weight:bold;
+  font-size:13px;
+}
+
+.direction{
+  margin-top:10px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+.pair{
+  background:#19212c;
+  padding:6px 8px;
+  border-radius:7px;
+  font-size:11px;
+}
+
+.up{
+  color:#4ade80;
+}
+
+.down{
+  color:#fb7185;
+}
+
+.context{
+  color:#facc15;
+}
+
+.empty{
+  text-align:center;
+  color:#94a3b8;
+  padding:35px 10px;
+}
+
+.footer{
+  text-align:center;
+  color:#64748b;
+  font-size:11px;
+  padding:25px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+
+  <div class="title">
+    📊 REAL FOREX NEWS ALERT
+  </div>
+
+  <div class="sub">
+    Real Market • OTC OFF • Forex Factory
+  </div>
+
+  <div class="status">
+
+    <div class="badge green">
+      ● LIVE ENGINE
+    </div>
+
+    <div class="badge">
+      HIGH IMPACT
+    </div>
+
+    <div class="badge">
+      XAUUSD INCLUDED
+    </div>
+
+  </div>
+
+</div>
+
+<div class="container">
+
+  <div class="card">
+
+    <div class="time">
+      Last Update
+    </div>
+
+    <div
+      id="updated"
+      style="margin-top:5px;font-weight:bold"
+    >
+      Loading...
+    </div>
+
+  </div>
+
+  <div id="news">
+
+    <div class="empty">
+      Loading Forex Factory news...
+    </div>
+
+  </div>
+
+</div>
+
+<div class="footer">
+
+  Auto refresh: 60 seconds<br>
+  Telegram engine runs through GitHub Actions
+
+</div>
+
+<script>
+
+async function loadNews(){
+
+  try{
+
+    const response =
+      await fetch(
+        "./data/latest.json?t=" +
+        Date.now()
+      );
+
+    if(!response.ok){
+      throw new Error("Data unavailable");
+    }
+
+    const data =
+      await response.json();
+
+    document.getElementById(
+      "updated"
+    ).textContent =
+      data.updated_bd || "-";
+
+    const container =
+      document.getElementById("news");
+
+    const events =
+      data.events || [];
+
+    if(!events.length){
+
+      container.innerHTML = `
+        <div class="empty">
+          No high-impact news found.
+        </div>
+      `;
+
+      return;
+    }
+
+    container.innerHTML =
+      events.map(renderEvent).join("");
+
+  }catch(error){
+
+    document.getElementById(
+      "news"
+    ).innerHTML = `
+      <div class="empty">
+        ⚠️ News data loading...
+        <br><br>
+        GitHub Action may still be running.
+      </div>
+    `;
+  }
+
+}
+
+
+function renderEvent(event){
+
+  const impact =
+    String(event.impact || "").toLowerCase();
+
+  let icon = "⚪";
+
+  if(impact.includes("high")){
+    icon = "🔴";
+  }
+
+  let biasClass =
+    "context";
+
+  if(event.bias === "BULLISH"){
+    biasClass = "up";
+  }
+
+  if(event.bias === "BEARISH"){
+    biasClass = "down";
+  }
+
+  let directionHTML = "";
+
+  const directions =
+    event.directions || {};
+
+  Object.entries(directions)
+    .forEach(
+      ([pair,direction]) => {
+
+        const cls =
+          direction === "UP"
+          ? "up"
+          : "down";
+
+        const symbol =
+          direction === "UP"
+          ? "🟢"
+          : "🔴";
+
+        directionHTML += `
+          <div class="pair ${cls}">
+            ${symbol}
+            ${pair}
+            ${direction}
+          </div>
+        `;
+      }
+    );
+
+  return `
+
+    <div class="card">
+
+      <div class="time">
+        ${icon}
+        ${escapeHTML(event.time_bd || "-")}
+      </div>
+
+      <div class="news-title">
+        ${escapeHTML(event.currency || "")}
+        •
+        ${escapeHTML(event.title || "News")}
+      </div>
+
+      <div class="grid">
+
+        <div class="box">
+          <div class="label">
+            ACTUAL
+          </div>
+          <div class="value">
+            ${escapeHTML(event.actual || "-")}
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="label">
+            FORECAST
+          </div>
+          <div class="value">
+            ${escapeHTML(event.forecast || "-")}
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="label">
+            PREVIOUS
+          </div>
+          <div class="value">
+            ${escapeHTML(event.previous || "-")}
+          </div>
+        </div>
+
+      </div>
+
+      <div
+        class="value ${biasClass}"
+        style="margin-top:10px"
+      >
+        Bias:
+        ${escapeHTML(event.bias || "CONTEXT")}
+      </div>
+
+      <div class="direction">
+        ${directionHTML}
+      </div>
+
+    </div>
+
+  `;
+}
+
+
+function escapeHTML(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+loadNews();
+
+setInterval(
+  loadNews,
+  60000
+);
+
+</script>
+
+</body>
+</html>
