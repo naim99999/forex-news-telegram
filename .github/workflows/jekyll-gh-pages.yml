@@ -13,7 +13,6 @@ permissions:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     environment:
@@ -24,17 +23,15 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          persist-credentials: false
 
       - name: Setup Pages
         uses: actions/configure-pages@v6
 
-      - name: Upload Pages Artifact
+      - name: Upload Pages
         uses: actions/upload-pages-artifact@v4
         with:
           path: .
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v5
